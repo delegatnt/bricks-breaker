@@ -28,13 +28,21 @@ public class Ball : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void Reset()
     {
-        if (collision.transform.tag == "Ground")
+        if (this.rigidbody)
         {
             move = false;
             rigidbody.velocity = Vector2.zero;
             rigidbody.position = StartPoint.transform.position;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.transform.tag == "Ground")
+        {
+            this.Reset();
 
             fallSound.Play(0);
 

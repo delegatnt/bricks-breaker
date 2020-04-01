@@ -19,11 +19,16 @@ public class GameController : MonoBehaviour
     public Text HighScoreText;
 
     public GameObject GameOverPanel;
+    public GameObject PausePanel;
+
     public GameObject ParentBricks;
     public GameObject BrickPrefub;
+    public Ball ball;
 
     public bool isGameOver = false;
-    
+
+    private int bricksCount = 0;
+
     void Start()
     {
         
@@ -35,12 +40,25 @@ public class GameController : MonoBehaviour
     {
         ScoreText.text = Score.ToString();
         LivesText.text = Lives.ToString() + " LIVES";
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            this.Pause();
+        }
     }
 
     public void LoadLevel(int levelId)
     {
-        Debug.Log(levelId);
-        string jsonPath = Application.dataPath + "/Levels/level" + levelId.ToString() + ".json";
+        ball.Reset();
+
+        if (this.ParentBricks)
+        {
+            foreach(Transform child in this.ParentBricks.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        string jsonPath = Application.streamingAssetsPath + "/Levels/level" + levelId.ToString() + ".json";
         string jsonString = File.ReadAllText(jsonPath);
         Level level = JsonUtility.FromJson<Level>(jsonString);
 
@@ -49,11 +67,20 @@ public class GameController : MonoBehaviour
             var newBrick = Instantiate(BrickPrefub, position, Quaternion.identity);
             newBrick.transform.parent = ParentBricks.transform;
         }
+
+        this.bricksCount = ParentBricks.transform.childCount;        
     }
     public void AppendScore()
     {
-        this.Score += ScoreStep;
+        this.Score += ScoreStep;        
         if (this.Score > this.HighScore) this.HighScore = this.Score;
+
+        this.bricksCount--;
+        if(bricksCount <= 0)
+        {            
+            this.CurrentLevel++;
+            this.LoadLevel(this.CurrentLevel);
+        }
 
     }
 
@@ -73,13 +100,26 @@ public class GameController : MonoBehaviour
     public void Restart()
     {
         this.isGameOver = false;
+        this.CurrentLevel = 1;
         this.Score = 0;
         this.Lives = 3;
+        this.LoadLevel(this.CurrentLevel);
         GameOverPanel.SetActive(false);
     }
 
     public void Quit()
     {
         Application.Quit();
+    }
+
+    public void Pause()
+    {
+        this.PausePanel.SetActive(true);
+        Time.timeScale = 0;
+    }
+    public void Resume()
+    {
+        this.PausePanel.SetActive(false);
+        Time.timeScale = 1;
     }
 }

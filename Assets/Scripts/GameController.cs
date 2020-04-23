@@ -50,6 +50,7 @@ public class GameController : MonoBehaviour
     public void LoadLevel(int levelId)
     {
         ball.Reset();
+        DestroyDropDownObjects();
 
         if (this.ParentBricks)
         {
@@ -68,7 +69,7 @@ public class GameController : MonoBehaviour
             newBrick.transform.parent = ParentBricks.transform;
         }
 
-        this.bricksCount = ParentBricks.transform.childCount;        
+        this.bricksCount = level.Blocks.Count;        
     }
     public void AppendScore()
     {
@@ -87,8 +88,10 @@ public class GameController : MonoBehaviour
     public void RemoveLive()
     {
         this.Lives -= 1;
-        
-        if(this.Lives <= 0)
+
+        DestroyDropDownObjects();
+
+        if (this.Lives <= 0)
         {
             this.FinishScoreText.text = "Score: " + this.Score.ToString();
             this.HighScoreText.text = "Highscore: " + this.HighScore.ToString();
@@ -114,12 +117,20 @@ public class GameController : MonoBehaviour
 
     public void Pause()
     {
-        this.PausePanel.SetActive(true);
+        //this.PausePanel.SetActive(true);
         Time.timeScale = 0;
     }
     public void Resume()
     {
         this.PausePanel.SetActive(false);
         Time.timeScale = 1;
+    }
+
+    public void DestroyDropDownObjects()
+    {
+        foreach(GameObject ddObject in GameObject.FindGameObjectsWithTag("DDObject"))
+        {
+            Destroy(ddObject);
+        }
     }
 }

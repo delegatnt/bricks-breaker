@@ -22,7 +22,7 @@ public class Brick : MonoBehaviour
             explosion.GetComponent<ParticleSystem>().Play();
             Destroy(gameObject);
 
-            if(Random.Range(0f, 1f) < 10.333333)
+            if(Random.Range(0f, 1f) < 0.333333)
             {
                 GameObject ddObject = Instantiate(dropDownObject, gameObject.transform.position, Quaternion.identity);
             }

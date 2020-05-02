@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
     public Text LivesText;
     public Text FinishScoreText;
     public Text HighScoreText;
+    public Text TimerText;
 
     public GameObject GameOverPanel;
     public GameObject PausePanel;
@@ -24,6 +25,12 @@ public class GameController : MonoBehaviour
     public GameObject ParentBricks;
     public GameObject BrickPrefub;
     public Ball ball;
+    public GameObject Player;
+    public float ImpulseCoef = 4f;
+    private float curEffectsTime = 0;
+    private float maxEffectsTime = 5f;
+
+    private DDObjectTypes currentEffect = DDObjectTypes.None;
 
     public bool isGameOver = false;
 
@@ -45,12 +52,24 @@ public class GameController : MonoBehaviour
         {
             this.Pause();
         }
+
+        TimerText.text = curEffectsTime.ToString();
+        if (curEffectsTime > 0)
+        {
+            curEffectsTime -= Time.deltaTime;
+            if (curEffectsTime <= 0)
+            {
+                curEffectsTime = 0;
+                ResetEffects();
+            }
+        }
     }
 
     public void LoadLevel(int levelId)
     {
         ball.Reset();
         DestroyDropDownObjects();
+        if(ball.rigidbody != null) ResetEffects();
 
         if (this.ParentBricks)
         {
@@ -90,6 +109,7 @@ public class GameController : MonoBehaviour
         this.Lives -= 1;
 
         DestroyDropDownObjects();
+        ResetEffects();
 
         if (this.Lives <= 0)
         {
@@ -132,5 +152,52 @@ public class GameController : MonoBehaviour
         {
             Destroy(ddObject);
         }
+    }
+
+    public void ChangeEffect(DDObjectTypes type)
+    {
+        ResetEffects();
+
+        if (type != DDObjectTypes.Live)
+        {
+            curEffectsTime = maxEffectsTime;
+        }
+        
+        switch (type)
+        {            
+            case DDObjectTypes.Collaps:
+                Player.transform.localScale = new Vector3(2f, 3f, 3f);
+                currentEffect = DDObjectTypes.Collaps;
+                break;
+            case DDObjectTypes.Expand:
+                Player.transform.localScale = new Vector3(4f, 3f, 3f);
+                currentEffect = DDObjectTypes.Expand;
+                break;
+            case DDObjectTypes.SpeedUp:
+                ball.rigidbody.AddForce(ball.rigidbody.velocity.normalized * ImpulseCoef, ForceMode2D.Impulse);
+                currentEffect = DDObjectTypes.SpeedUp;
+                break;
+            case DDObjectTypes.SpeedDown:
+                ball.rigidbody.AddForce(ball.rigidbody.velocity.normalized * -ImpulseCoef, ForceMode2D.Impulse);
+                currentEffect = DDObjectTypes.SpeedDown;
+                break;
+            case DDObjectTypes.Live: this.Lives += 1;  break;
+        }
+    }
+
+    public void ResetEffects()
+    {
+        curEffectsTime = 0;
+        Player.transform.localScale = new Vector3(3f, 3f, 3f);
+        
+        if(currentEffect == DDObjectTypes.SpeedDown)
+        {
+            ball.rigidbody.AddForce(ball.rigidbody.velocity.normalized * ImpulseCoef, ForceMode2D.Impulse);
+        }
+        else if (currentEffect == DDObjectTypes.SpeedUp)
+        {
+            ball.rigidbody.AddForce(ball.rigidbody.velocity.normalized * -ImpulseCoef, ForceMode2D.Impulse);
+        }
+        currentEffect = DDObjectTypes.None;
     }
 }

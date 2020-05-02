@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    private Rigidbody2D rigidbody;
+    public Rigidbody2D rigidbody;
     public float speed = 500f;
     public GameObject StartPoint;
     public bool move = false;
@@ -40,6 +40,7 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+
         if (collision.transform.tag == "Ground")
         {
             this.Reset();

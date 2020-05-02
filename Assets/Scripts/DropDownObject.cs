@@ -8,7 +8,8 @@ public enum DDObjectTypes
     Collaps,
     SpeedUp,
     SpeedDown,
-    Live
+    Live,
+    None
 }
 public class DropDownObject : MonoBehaviour
 {
@@ -22,9 +23,11 @@ public class DropDownObject : MonoBehaviour
     public Sprite speedUpSprite;
     public Sprite speedDownSprite;
     public Sprite liveSprite;
+    private GameController gameController;
 
     void Start()
     {
+        gameController = GameObject.Find("GameController").GetComponent<GameController>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         type = this.setType();
 
@@ -52,4 +55,23 @@ public class DropDownObject : MonoBehaviour
         else if (rand >= 0.2f) return DDObjectTypes.SpeedUp;
         else return DDObjectTypes.Live;
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        
+        switch (collision.transform.tag)
+        {
+            case "Ground": Destroy(gameObject); break;
+            case "Player":
+                gameController.ChangeEffect(this.type);
+                Destroy(gameObject); break;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+
+        
+    }
+
 }
